@@ -1717,6 +1717,7 @@ async function loadData(){
 
 // ── GOOGLE MAPS ──
 function initMap(){
+  try{
   gmap=new google.maps.Map(document.getElementById('gmap'),{
     center:{lat:-25.5163,lng:-54.6132},zoom:13,
     styles:[
@@ -1735,6 +1736,7 @@ function initMap(){
   });
   infoWindow=new google.maps.InfoWindow();
   renderMarkers();
+  }catch(e){console.warn('Maps init error:',e);}
 }
 
 function markerColor(c){
@@ -2869,6 +2871,6 @@ function confirmarRota(){
 
 init();
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJfURoloD9g_NRbmfrtGIiAzwZrDQeQwg&callback=initMapCallback&language=pt-BR" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJfURoloD9g_NRbmfrtGIiAzwZrDQeQwg&callback=initMapCallback&language=pt-BR&loading=async" async defer onerror="console.warn('Maps failed to load')"></script>
 </body>
 </html>
