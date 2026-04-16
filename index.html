@@ -1615,35 +1615,29 @@ async function logAction(acao, modulo, detalhe){
 
 // ── BACKUP / EXPORT ──
 function exportarCSV(tabela){
-  let rows, headers, filename;
+  var rows, headers, filename;
+  function q(v){ return '"' + String(v).replace(/"/g, '""') + '"'; }
   if(tabela==='clientes'){
-    headers = ['Nome','RUC','Responsavel','Telefone','Regiao','Fragancia','Status','Moeda','Valor','Valor_BRL','Valor_GS','Dia_Vencimento','Frequencia'];
-    rows = clients.map(c=>[c.nome,c.ruc||'',c.responsavel||'',c.telefone||'',c.regiao||'',c.fragancia||'',c.status,c.moeda||'',c.valor||0,c.valor_brl||0,c.valor_gs||0,c.dia_vencimento||'',c.frequencia||15]);
-    filename = 'clientes_lejardin.csv';
+    headers=['Nome','RUC','Responsavel','Telefone','Regiao','Fragancia','Status','Moeda','Valor','Valor_BRL','Valor_GS','Dia_Vencimento','Frequencia'];
+    rows=clients.map(function(c){return[c.nome,c.ruc||'',c.responsavel||'',c.telefone||'',c.regiao||'',c.fragancia||'',c.status,c.moeda||'',c.valor||0,c.valor_brl||0,c.valor_gs||0,c.dia_vencimento||'',c.frequencia||15];});
+    filename='clientes_lejardin.csv';
   } else if(tabela==='visitas'){
-    headers = ['Data','Cliente','Tipo','Maquinas','Responsavel','Observacao','Pendencia'];
-    rows = visitas.map(v=>{
-      const c = clients.find(x=>x.id===v.cliente_id);
-      return [fmtDate(v.data),c?c.nome:'',v.tipo||'abastecimento',v.maquinas_abastecidas||0,v.responsavel||'',v.observacao||'',v.pendencia||''];
-    });
-    filename = 'visitas_lejardin.csv';
+    headers=['Data','Cliente','Tipo','Maquinas','Responsavel','Observacao','Pendencia'];
+    rows=visitas.map(function(v){var c=clients.find(function(x){return x.id===v.cliente_id;});return[fmtDate(v.data),c?c.nome:'',v.tipo||'abastecimento',v.maquinas_abastecidas||0,v.responsavel||'',v.observacao||'',v.pendencia||''];});
+    filename='visitas_lejardin.csv';
   } else {
-    headers = ['Mes','Cliente','Valor','Valor_Pago','Status','Data_Cobranca','Data_Pagamento','Forma'];
-    rows = pagamentos.map(p=>{
-      const c = clients.find(x=>x.id===p.cliente_id);
-      return [p.mes_referencia?p.mes_referencia.slice(0,7):'',c?c.nome:'',p.valor||0,p.valor_pago||0,p.status||'',p.data_cobranca?fmtDate(p.data_cobranca):'',p.data_pagamento?fmtDate(p.data_pagamento):'',p.forma_pagamento||''];
-    });
-    filename = 'pagamentos_lejardin.csv';
+    headers=['Mes','Cliente','Valor','Valor_Pago','Status','Data_Cobranca','Data_Pagamento','Forma'];
+    rows=pagamentos.map(function(p){var c=clients.find(function(x){return x.id===p.cliente_id;});return[p.mes_referencia?p.mes_referencia.slice(0,7):'',c?c.nome:'',p.valor||0,p.valor_pago||0,p.status||'',p.data_cobranca?fmtDate(p.data_cobranca):'',p.data_pagamento?fmtDate(p.data_pagamento):'',p.forma_pagamento||''];});
+    filename='pagamentos_lejardin.csv';
   }
-
-  const csv = [headers, ...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
-');
-  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download=filename; a.click();
+  var lines=[headers].concat(rows).map(function(r){return r.map(q).join(',');});
+  var csv=lines.join('\r\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();
   URL.revokeObjectURL(url);
-  showToast('✓ Arquivo exportado!');
+  showToast('Arquivo exportado!');
 }
 
 // ── FINANCEIRO inline search ──
