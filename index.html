@@ -215,9 +215,9 @@
   #top-bar-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--text);letter-spacing:.3px;}
 
   /* ── MODULES ── */
-  .module{display:none;flex:1;overflow:hidden;}
-  .module{display:none;flex:1;overflow:hidden;min-height:0;}
-  .module.active{display:flex;flex-direction:column;flex:1;}
+  .module{display:none !important;flex:1;overflow:hidden;}
+  .module{display:none !important;flex:1;overflow:hidden;min-height:0;}
+  .module.active{display:flex !important;flex-direction:column;flex:1;}
 
   /* ── DASHBOARD ── */
   .dash-grid{padding:24px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:20px;box-sizing:border-box;}
@@ -387,7 +387,7 @@
   </div>
 
   <!-- MODULE: LOGÍSTICA -->
-  <div id="module-logistica" class="module" style="display:none;">
+  <div id="module-logistica" class="module">
     <div class="main" style="flex:1;overflow:hidden;">
     <div class="sidebar">
       <div class="sb-head">
@@ -677,7 +677,7 @@
   </div>
 
   <!-- MODULE: CLIENTES -->
-  <div id="module-clientes" class="module" style="display:none;">
+  <div id="module-clientes" class="module">
     <div style="padding:24px;overflow-y:auto;flex:1;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
         <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;">Clientes</div>
@@ -704,7 +704,7 @@
   </div>
 
   <!-- MODULE: RELATÓRIOS -->
-  <div id="module-relatorios" class="module" style="display:none;">
+  <div id="module-relatorios" class="module">
     <div style="padding:24px;overflow-y:auto;flex:1;">
       <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;margin-bottom:20px;">Relatórios</div>
       <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;" id="rel-tabs">
@@ -719,7 +719,7 @@
   </div>
 
   <!-- MODULE: ADMINISTRATIVO (expanded) -->
-  <div id="module-admin" class="module" style="display:none;">
+  <div id="module-admin" class="module">
     <div style="display:flex;height:100%;">
       <!-- Admin sidebar tabs -->
       <div style="width:200px;border-right:1px solid var(--border);padding:16px 10px;flex-shrink:0;">
