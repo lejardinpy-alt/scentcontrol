@@ -82,7 +82,7 @@
   .lout-btn{background:none;border:1px solid var(--border2);color:var(--muted);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:all .2s;}
   .lout-btn:hover{border-color:var(--red);color:var(--red);}
   .main{display:flex;flex:1;overflow:hidden;height:100%;min-height:0;}
-  .sidebar{width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:10;}
+  .sidebar{width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:10;height:100%;min-height:0;}
   .sb-head{padding:18px 18px 14px;border-bottom:1px solid var(--border);}
   .sb-ttl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;}
   .stats-row{display:flex;gap:7px;}
@@ -111,7 +111,7 @@
   .sg{background:#5A7A3A;color:#5A7A3A;}.sy{background:#C8952A;color:#C8952A;}.sr{background:#C0392B;color:#C0392B;}.sbt{background:#4A7C8E;color:#4A7C8E;}
   .cname{font-weight:600;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);letter-spacing:-.1px;}
   .cmeta{font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;}
-  .map-area{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+  .map-area{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:0;height:100%;}
   #gmap{width:100%;height:100%;min-height:0;flex:1;}
   .map-label{
     background:rgba(255,255,255,0.85);
@@ -340,7 +340,6 @@
       <div class="nav-sub" id="navsub-financeiro">
         <button class="nav-item" onclick="showFinSub('dashboard')" id="nav-fin-dashboard">📊 Dashboard</button>
         <button class="nav-item" onclick="showFinSub('receber')" id="nav-fin-receber">📥 Contas a Receber</button>
-        <button class="nav-item" onclick="showFinSub('recebidas')" id="nav-fin-recebidas">✅ Contas Recebidas</button>
         <button class="nav-item" onclick="showFinSub('fluxo')" id="nav-fin-fluxo">📈 Fluxo de Caixa</button>
         <button class="nav-item" onclick="showFinSub('relatorios')" id="nav-fin-relatorios">📋 Relatórios</button>
       </div>
@@ -420,7 +419,7 @@
 
   <!-- MODULE: LOGÍSTICA -->
   <div id="module-logistica" class="module">
-    <div class="main" style="flex:1;overflow:hidden;">
+    <div class="main" style="flex:1;overflow:hidden;height:100%;min-height:0;">
     <div class="sidebar">
       <div class="sb-head">
         <div class="sb-ttl">Visão Geral</div>
@@ -563,6 +562,7 @@
         </div>
         <div id="tipo-info" style="font-size:11px;color:var(--muted);margin-top:6px;">Abastecimento reinicia o ciclo de reposição.</div>
       </div>
+      <div class="fgrp full go"><label class="flbl">Data da Visita</label><input class="finput" id="ci-data" type="datetime-local" /></div>
       <div class="fgrp full" id="ci-maq-wrap"><label class="flbl">Máquinas abastecidas</label><input class="finput" id="ci-maq" type="number" /></div>
       <div class="fgrp full"><label class="flbl">Observação da visita</label><input class="finput" id="ci-obs" placeholder="Ex: Tudo ok, máquina ajustada, etc." /></div>
       <div class="fgrp full"><label class="flbl">⚠️ Pendência para próxima visita</label><input class="finput" id="ci-pendencia" placeholder="Ex: Trocar filtro, verificar mangueira, etc." /></div>
@@ -625,7 +625,7 @@
 
 <!-- MODAL REGISTRAR PAGAMENTO -->
 <div class="overlay" id="pag-ov">
-  <div class="modal" style="width:440px;">
+  <div class="modal" style="width:520px;max-width:96vw;">
     <div class="mttl">Registrar Pagamento</div>
     <div id="pag-cname" style="color:var(--muted);font-size:13px;margin-bottom:18px;"></div>
     <div class="fgrid">
@@ -637,10 +637,6 @@
           <option value="isento">🎁 Isento</option>
         </select>
       </div>
-      <div class="fgrp"><label class="flbl">Valor cobrado</label><input class="finput" id="pag-valor" type="number" /></div>
-      <div class="fgrp"><label class="flbl">Valor pago</label><input class="finput" id="pag-valor-pago" type="number" /></div>
-      <div class="fgrp"><label class="flbl">Data cobrança</label><input class="finput" id="pag-data-cob" type="date" /></div>
-      <div class="fgrp"><label class="flbl">Data pagamento</label><input class="finput" id="pag-data-pag" type="date" /></div>
       <div class="fgrp full"><label class="flbl">Forma de pagamento</label>
         <select class="fsel" id="pag-forma">
           <option value="pix_br">Pix BR</option>
@@ -649,6 +645,10 @@
           <option value="outro">Outro</option>
         </select>
       </div>
+      <div class="fgrp"><label class="flbl">Valor cobrado</label><input class="finput" id="pag-valor" type="number" /></div>
+      <div class="fgrp"><label class="flbl">Valor pago</label><input class="finput" id="pag-valor-pago" type="number" /></div>
+      <div class="fgrp"><label class="flbl">Data cobrança</label><input class="finput" id="pag-data-cob" type="date" /></div>
+      <div class="fgrp"><label class="flbl">Data pagamento</label><input class="finput" id="pag-data-pag" type="date" /></div>
       <div class="fgrp full"><label class="flbl">Observação</label><input class="finput" id="pag-obs" placeholder="Ex: Pagou com desconto, parcelado, etc." /></div>
     </div>
     <div class="macts">
@@ -1084,14 +1084,16 @@ function renderFinDashboard(div){
 function renderFinReceber(div){
   const now = new Date().toISOString().slice(0,7);
   div.innerHTML=`${finSubHeader('Contas a Receber')}
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-      <input class="search-input" id="receber-search" placeholder="🔍 Buscar cliente..." oninput="renderFinReceberTable()" style="width:200px;" />
-      <select class="fsel" id="receber-mes" onchange="renderFinReceberTable()" style="width:180px;">
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+      <input class="search-input" id="receber-search" placeholder="🔍 Buscar cliente..." oninput="renderFinReceberTable()" style="width:180px;" />
+      <select class="fsel" id="receber-mes" onchange="renderFinReceberTable()" style="width:160px;">
         ${getMesOptions().map(o=>`<option value="${o.value}" ${o.value===now?'selected':''}>${o.label}</option>`).join('')}
       </select>
       <button onclick="filterReceberStatus('todos')" id="frb-todos" class="regiao-tab active" style="font-size:11px;">Todos</button>
-      <button onclick="filterReceberStatus('pendente')" id="frb-pendente" class="regiao-tab" style="font-size:11px;">Pendente</button>
-      <button onclick="filterReceberStatus('atrasado')" id="frb-atrasado" class="regiao-tab" style="font-size:11px;">Atrasado</button>
+      <button onclick="filterReceberStatus('pago')" id="frb-pago" class="regiao-tab" style="font-size:11px;">✅ Recebidos</button>
+      <button onclick="filterReceberStatus('pendente')" id="frb-pendente" class="regiao-tab" style="font-size:11px;">⏳ Pendentes</button>
+      <button onclick="filterReceberStatus('atrasado')" id="frb-atrasado" class="regiao-tab" style="font-size:11px;">⚠️ Atrasados</button>
+      <button onclick="filterReceberStatus('isento')" id="frb-isento" class="regiao-tab" style="font-size:11px;">🎁 Isentos</button>
     </div>
     <div id="receber-table"></div>`;
   window._receberFilter='todos';
@@ -1123,28 +1125,32 @@ function renderFinReceberTable(){
     const venc=new Date(a2,m2-1,c.dia_vencimento||20,23,59,59);
     const status=pag?pag.status:(hoje>venc?'atrasado':'pendente');
     return{c,pag,status};
-  }).filter(x=>x.status!=='pago'&&x.status!=='isento');
+  });
   if(f!=='todos')filtered=filtered.filter(x=>x.status===f);
   if(q)filtered=filtered.filter(x=>x.c.nome.toLowerCase().includes(q));
-  filtered.sort((a,b)=>{const o={atrasado:0,pendente:1};return(o[a.status]||1)-(o[b.status]||1);});
+  filtered.sort((a,b)=>{const o={atrasado:0,pendente:1,pago:2,isento:3};return(o[a.status]||2)-(o[b.status]||2);});
   const el=document.getElementById('receber-table');
   if(!el)return;
+  // Footer totals depend on filter
+  const footLabel = f==='pago'?'TOTAL RECEBIDO':f==='atrasado'?'TOTAL ATRASADO':'TOTAL';
+  const footColor = f==='pago'?'var(--green)':f==='atrasado'?'var(--red)':'var(--accent)';
   el.innerHTML=`<table class="fin-table">
-    <thead><tr><th>Cliente</th><th>Dia Venc.</th><th style="text-align:right;">R$</th><th style="text-align:right;">₲</th><th>Status</th><th>Obs.</th><th></th></tr></thead>
+    <thead><tr><th>Cliente</th><th>Dia Venc.</th><th style="text-align:right;">R$</th><th style="text-align:right;">₲</th><th>Status</th><th>Data Pag.</th><th>Forma</th><th></th></tr></thead>
     <tbody>${filtered.map(({c,pag,status})=>`<tr>
-      <td style="font-weight:600;">${c.nome}</td>
-      <td style="text-align:center;color:var(--muted);">dia ${c.dia_vencimento||'?'}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;">${c.valor_brl?'R$ '+Number(c.valor_brl).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;">${c.valor_gs?fmtGS(c.valor_gs):(c.moeda==='₲'?fmtValorFin(c):'—')}</td>
+      <td style="font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.nome}</td>
+      <td style="text-align:center;color:var(--muted);font-size:11px;">dia ${c.dia_vencimento||'?'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;">${c.valor_brl?'R$ '+Number(c.valor_brl).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;">${c.valor_gs?fmtGS(c.valor_gs):(c.moeda==='₲'?fmtValorFin(c):'—')}</td>
       <td><span class="pag-badge ${badgeClass[status]}">${badgeLabel[status]}</span></td>
-      <td style="font-size:11px;color:var(--muted);">${pag?.observacao||'—'}</td>
-      <td><button class="pag-btn" onclick="openPag('${c.id}','${mes}')">+ Registrar</button></td>
+      <td style="font-size:11px;color:var(--muted);">${pag?.data_pagamento?fmtDate(pag.data_pagamento):'—'}</td>
+      <td style="font-size:11px;color:var(--muted);">${pag?.forma_pagamento?formaLabel[pag.forma_pagamento]||pag.forma_pagamento:'—'}</td>
+      <td><button class="pag-btn" onclick="openPag('${c.id}','${mes}')">${pag?'✏️':'+ Reg.'}</button></td>
     </tr>`).join('')}
     <tfoot><tr style="background:var(--surface2);">
-      <td colspan="2" style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">TOTAL PENDENTE</td>
-      <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:var(--yellow);">${filtered.reduce((s,{c})=>s+(c.valor_brl||0),0)>0?'R$ '+filtered.reduce((s,{c})=>s+(c.valor_brl||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
-      <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:var(--yellow);">${fmtGS(filtered.reduce((s,{c})=>s+(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0)),0))}</td>
-      <td colspan="3" style="padding:10px 12px;font-size:11px;color:var(--muted);">${filtered.length} cliente(s)</td>
+      <td colspan="2" style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">${footLabel}</td>
+      <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${footColor};">${filtered.reduce((s,{c})=>s+(c.valor_brl||0),0)>0?'R$ '+filtered.reduce((s,{c})=>s+(c.valor_brl||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+      <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${footColor};">${fmtGS(filtered.reduce((s,{c})=>s+(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0)),0))}</td>
+      <td colspan="4" style="padding:10px 12px;font-size:11px;color:var(--muted);">${filtered.length} cliente(s)</td>
     </tr></tfoot>
     </tbody></table>`;
 }
@@ -1202,30 +1208,66 @@ function renderFinFluxo(div){
   div.innerHTML=`${finSubHeader('Fluxo de Caixa')}
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;" id="fluxo-kpis"></div>
     <div class="dash-card" id="fluxo-chart"></div>`;
+
+  const hoje=new Date();
+  const anoAtual=hoje.getFullYear();
+  const mesAtualNum=hoje.getMonth();
+  const ativos=clients.filter(c=>c.status!=='cancelado');
+  const esperadoGsMensal=ativos.reduce((s,c)=>s+(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0)),0);
+  const esperadoBrlMensal=ativos.reduce((s,c)=>s+(c.valor_brl||(c.moeda==='R$'?(c.valor||0):0)),0);
+
+  // Build all months: 3 past + current + future until December
   const meses=[];
-  for(let i=5;i>=0;i--){
-    const d=new Date();d.setMonth(d.getMonth()-i);
+  // Past 3 months
+  for(let i=3;i>=1;i--){
+    const d=new Date(anoAtual,mesAtualNum-i,1);
     const m=d.toISOString().slice(0,7);
-    const label=d.toLocaleDateString('pt-BR',{month:'long',year:'2-digit'});
-    const ativos=clients.filter(c=>c.status!=='cancelado');
-    const esperadoGs=ativos.reduce((s,c)=>s+(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0)),0);
+    const label=d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
     const recGs=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,m);const gs=c.valor_gs||(c.moeda==='₲'?(c.valor||0):0);return s+(p&&p.status==='pago'?gs:0);},0);
-    meses.push({m,label,esperadoGs,recGs,taxa:esperadoGs?((recGs/esperadoGs)*100).toFixed(0):0});
+    const recBrl=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,m);const brl=c.valor_brl||(c.moeda==='R$'?(c.valor||0):0);return s+(p&&p.status==='pago'?brl:0);},0);
+    meses.push({m,label,esperadoGs:esperadoGsMensal,esperadoBrl:esperadoBrlMensal,recGs,recBrl,isFuture:false,isCurrent:false});
   }
-  const mesAtual=meses[5];
+  // Current month
+  const mAtual=hoje.toISOString().slice(0,7);
+  const recGsAtual=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,mAtual);const gs=c.valor_gs||(c.moeda==='₲'?(c.valor||0):0);return s+(p&&p.status==='pago'?gs:0);},0);
+  const recBrlAtual=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,mAtual);const brl=c.valor_brl||(c.moeda==='R$'?(c.valor||0):0);return s+(p&&p.status==='pago'?brl:0);},0);
+  meses.push({m:mAtual,label:hoje.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}),esperadoGs:esperadoGsMensal,esperadoBrl:esperadoBrlMensal,recGs:recGsAtual,recBrl:recBrlAtual,isFuture:false,isCurrent:true});
+  // Future months until December
+  for(let i=mesAtualNum+1;i<=11;i++){
+    const d=new Date(anoAtual,i,1);
+    const m=d.toISOString().slice(0,7);
+    const label=d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+    meses.push({m,label,esperadoGs:esperadoGsMensal,esperadoBrl:esperadoBrlMensal,recGs:0,recBrl:0,isFuture:true,isCurrent:false});
+  }
+
+  const taxa=esperadoGsMensal?((recGsAtual/esperadoGsMensal)*100).toFixed(0):0;
+  const projecaoAnual=esperadoGsMensal*(12-mesAtualNum-1)+recGsAtual;
+
   document.getElementById('fluxo-kpis').innerHTML=`
-    <div class="kpi-card"><div class="kpi-val" style="color:var(--accent)">${fmtGS(mesAtual.esperadoGs)}</div><div class="kpi-lbl" style="margin-top:6px;">Previsto este mês</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:var(--green)">${fmtGS(mesAtual.recGs)}</div><div class="kpi-lbl" style="margin-top:6px;">Realizado este mês</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:${mesAtual.taxa>=80?'var(--green)':mesAtual.taxa>=50?'var(--yellow)':'var(--red)'}">${mesAtual.taxa}%</div><div class="kpi-lbl" style="margin-top:6px;">Taxa de recebimento</div></div>`;
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--accent)">${fmtGS(esperadoGsMensal)}</div><div class="kpi-lbl" style="margin-top:4px;">Previsto/mês</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--green)">${fmtGS(recGsAtual)}</div><div class="kpi-lbl" style="margin-top:4px;">Realizado este mês</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--accent);font-size:18px;">${fmtGS(projecaoAnual)}</div><div class="kpi-lbl" style="margin-top:4px;">Projeção até Dez/${anoAtual}</div></div>`;
+
   document.getElementById('fluxo-chart').innerHTML=`
-    <div class="dash-card-title">📊 Previsto vs Realizado — Últimos 6 meses</div>
-    <table class="fin-table"><thead><tr><th>Mês</th><th style="text-align:right;">Previsto ₲</th><th style="text-align:right;">Realizado ₲</th><th style="text-align:center;">Taxa</th></tr></thead>
-    <tbody>${meses.map(m=>`<tr>
-      <td style="font-weight:500;text-transform:capitalize;">${m.label}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;">${fmtGS(m.esperadoGs)}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--green);">${fmtGS(m.recGs)}</td>
-      <td style="text-align:center;"><span class="pag-badge ${m.taxa>=80?'pag-pago':m.taxa>=50?'pag-pendente':'pag-atrasado'}">${m.taxa}%</span></td>
-    </tr>`).join('')}</tbody></table>`;
+    <div class="dash-card-title">📊 Fluxo de Caixa ${anoAtual} — Realizado + Projeção</div>
+    <table class="fin-table">
+      <thead><tr><th>Mês</th><th style="text-align:right;">Previsto ₲</th><th style="text-align:right;">Previsto R$</th><th style="text-align:right;">Realizado ₲</th><th style="text-align:center;">Status</th></tr></thead>
+      <tbody>${meses.map(m=>`<tr style="${m.isCurrent?'background:rgba(107,122,78,.06);font-weight:600;':''}${m.isFuture?'color:var(--muted);':''}" >
+        <td style="font-weight:${m.isCurrent?'700':'500'};text-transform:capitalize;">${m.label}${m.isCurrent?' ◀':m.isFuture?' (proj.)':''}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;">${fmtGS(m.esperadoGs)}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;">${m.esperadoBrl?'R$ '+m.esperadoBrl.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;color:${m.isFuture?'var(--muted)':'var(--green)'};">${m.isFuture?'—':fmtGS(m.recGs)}</td>
+        <td style="text-align:center;">${m.isFuture?'<span class="pag-badge pag-pendente">Previsto</span>':m.isCurrent?`<span class="pag-badge ${taxa>=80?'pag-pago':taxa>=50?'pag-pendente':'pag-atrasado'}">${taxa}%</span>`:`<span class="pag-badge pag-pago">${m.esperadoGs?((m.recGs/m.esperadoGs)*100).toFixed(0):0}%</span>`}</td>
+      </tr>`).join('')}
+      </tbody>
+      <tfoot><tr style="background:var(--surface2);font-weight:700;">
+        <td style="padding:10px 12px;font-size:11px;text-transform:uppercase;color:var(--muted);">Projeção Total ${anoAtual}</td>
+        <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;color:var(--accent);">${fmtGS(esperadoGsMensal*12)}</td>
+        <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;color:var(--accent);">${esperadoBrlMensal?'R$ '+(esperadoBrlMensal*12).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+        <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;color:var(--green);">${fmtGS(projecaoAnual)}</td>
+        <td></td>
+      </tr></tfoot>
+    </table>`;
 }
 
 function renderFinRelatorios(div){
@@ -2422,6 +2464,10 @@ function openCi(id){
   document.getElementById('ci-maq').value=totalMaq(c);
   document.getElementById('ci-obs').value='';
   document.getElementById('ci-pendencia').value='';
+  // Set current datetime as default
+  const now = new Date();
+  const localDT = new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  document.getElementById('ci-data').value=localDT;
   document.getElementById('ci-maq-wrap').style.display='block';
   // Reset tipo buttons
   const ab=document.getElementById('tipo-abast');
@@ -2456,9 +2502,11 @@ function setTipo(t){
 async function saveCi(){
   const c=clients.find(x=>x.id===ciId);if(!c)return;
   const isAbast = ciTipo === 'abastecimento';
+  const ciDataVal = document.getElementById('ci-data').value;
+  const ciDataFinal = ciDataVal ? new Date(ciDataVal).toISOString() : new Date().toISOString();
   const {error}=await sb.from('visitas').insert({
     cliente_id:ciId,
-    data:new Date().toISOString(),
+    data:ciDataFinal,
     tipo:ciTipo,
     maquinas_abastecidas:isAbast?(parseInt(document.getElementById('ci-maq').value)||totalMaq(c)):0,
     responsavel:currentUser.nome,
@@ -2786,8 +2834,9 @@ function openPag(clienteId, mes){
   document.getElementById('pag-status').value = pag?.status || 'pago';
   document.getElementById('pag-valor').value = pag?.valor || ((c.valor||0)-(c.desconto||0));
   document.getElementById('pag-valor-pago').value = pag?.valor_pago || ((c.valor||0)-(c.desconto||0));
-  document.getElementById('pag-data-cob').value = pag?.data_cobranca ? pag.data_cobranca.slice(0,10) : '';
-  document.getElementById('pag-data-pag').value = pag?.data_pagamento ? pag.data_pagamento.slice(0,10) : '';
+  const todayStr = new Date().toISOString().slice(0,10);
+  document.getElementById('pag-data-cob').value = pag?.data_cobranca ? pag.data_cobranca.slice(0,10) : todayStr;
+  document.getElementById('pag-data-pag').value = pag?.data_pagamento ? pag.data_pagamento.slice(0,10) : todayStr;
   document.getElementById('pag-forma').value = pag?.forma_pagamento || (c.contrato==='sem fatura'?'pix_br':'transferencia_py');
   document.getElementById('pag-obs').value = pag?.observacao || '';
   document.getElementById('pag-ov').classList.add('open');
