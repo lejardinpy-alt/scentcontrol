@@ -2857,8 +2857,8 @@ function openPag(clienteId, mes){
   document.getElementById('pag-data-pag').value = pag?.data_pagamento ? pag.data_pagamento.slice(0,10) : todayStr;
   document.getElementById('pag-forma').value = pag?.forma_pagamento || (c.contrato==='sem fatura'?'pix_br':'transferencia_py');
   document.getElementById('pag-obs').value = pag?.observacao || '';
-  document.getElementById('pag-mes-ref').value = mes;
-  document.getElementById('pag-desconto').value = pag?.desconto || 0;
+  const mesRefEl = document.getElementById('pag-mes-ref');
+  if(mesRefEl) mesRefEl.value = mes;
   document.getElementById('pag-ov').classList.add('open');
 }
 
