@@ -111,7 +111,7 @@
   .sg{background:#5A7A3A;color:#5A7A3A;}.sy{background:#C8952A;color:#C8952A;}.sr{background:#C0392B;color:#C0392B;}.sbt{background:#4A7C8E;color:#4A7C8E;}
   .cname{font-weight:600;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);letter-spacing:-.1px;}
   .cmeta{font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;}
-  .map-area{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:0;height:100%;}
+  .map-area{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:0;height:100%;min-width:0;}
   #gmap{width:100%;height:100%;min-height:0;flex:1;}
   .map-label{
     background:rgba(255,255,255,0.85);
@@ -129,8 +129,8 @@
   .iw-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
   .iw-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;}
   .iw-btn{width:100%;padding:9px;border-radius:8px;border:none;cursor:pointer;background:var(--accent);color:#fff;font-size:12px;font-weight:600;font-family:'Outfit',sans-serif;transition:all .2s;}
-  .dpanel{width:380px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:10;}
-  .dpanel.open{transform:translateX(0);}
+  .dpanel{width:380px;min-width:380px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:10;margin-right:-380px;}
+  .dpanel.open{transform:translateX(0);margin-right:0;}
   .dhead{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
   .dhead-left{flex:1;}
   .dname{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:6px;line-height:1.2;letter-spacing:.2px;}
@@ -235,7 +235,7 @@
   /* ── MODULES ── */
   .module{display:none !important;flex:1;overflow:hidden;}
   .module{display:none !important;flex:1;overflow:hidden;min-height:0;}
-  .module.active{display:flex !important;flex-direction:column;flex:1;}
+  .module.active{display:flex !important;flex-direction:column;flex:1;width:100%;min-width:0;}
 
   /* ── DASHBOARD ── */
   .dash-grid{padding:24px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:20px;box-sizing:border-box;}
@@ -312,7 +312,7 @@
   </div>
 </div>
 
-<div id="app" style="display:none;flex-direction:row;height:100vh;overflow:hidden;">
+<div id="app" style="display:none;flex-direction:row;height:100vh;overflow:hidden;width:100vw;">
   <!-- SIDEBAR NAV -->
   <nav id="nav-sidebar">
     <div class="nav-logo">
@@ -379,7 +379,7 @@
   </nav>
 
   <!-- MAIN CONTENT -->
-  <div id="main-content" style="flex:1;display:flex;flex-direction:column;overflow:hidden;height:100vh;">
+  <div id="main-content" style="flex:1;display:flex;flex-direction:column;overflow:hidden;height:100vh;min-width:0;">
 
   <!-- TOP BAR -->
   <div id="top-bar">
@@ -625,11 +625,11 @@
 
 <!-- MODAL REGISTRAR PAGAMENTO -->
 <div class="overlay" id="pag-ov">
-  <div class="modal" style="width:520px;max-width:96vw;">
+  <div class="modal" style="width:640px;max-width:96vw;">
     <div class="mttl">Registrar Pagamento</div>
     <div id="pag-cname" style="color:var(--muted);font-size:13px;margin-bottom:18px;"></div>
-    <div class="fgrid">
-      <div class="fgrp full"><label class="flbl">Status</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;">
+      <div class="fgrp"><label class="flbl">Status</label>
         <select class="fsel" id="pag-status">
           <option value="pago">✅ Pago</option>
           <option value="pendente">⏳ Pendente</option>
@@ -637,7 +637,7 @@
           <option value="isento">🎁 Isento</option>
         </select>
       </div>
-      <div class="fgrp full"><label class="flbl">Forma de pagamento</label>
+      <div class="fgrp"><label class="flbl">Forma de pagamento</label>
         <select class="fsel" id="pag-forma">
           <option value="pix_br">Pix BR</option>
           <option value="transferencia_py">Transferência PY</option>
@@ -645,11 +645,13 @@
           <option value="outro">Outro</option>
         </select>
       </div>
+      <div class="fgrp"><label class="flbl">Mês referência</label><input class="finput" id="pag-mes-ref" type="month" /></div>
       <div class="fgrp"><label class="flbl">Valor cobrado</label><input class="finput" id="pag-valor" type="number" /></div>
       <div class="fgrp"><label class="flbl">Valor pago</label><input class="finput" id="pag-valor-pago" type="number" /></div>
+      <div class="fgrp"><label class="flbl">Desconto</label><input class="finput" id="pag-desconto" type="number" placeholder="0" /></div>
       <div class="fgrp"><label class="flbl">Data cobrança</label><input class="finput" id="pag-data-cob" type="date" /></div>
       <div class="fgrp"><label class="flbl">Data pagamento</label><input class="finput" id="pag-data-pag" type="date" /></div>
-      <div class="fgrp full"><label class="flbl">Observação</label><input class="finput" id="pag-obs" placeholder="Ex: Pagou com desconto, parcelado, etc." /></div>
+      <div class="fgrp"><label class="flbl">Observação</label><input class="finput" id="pag-obs" placeholder="Desconto, parcelado, etc." /></div>
     </div>
     <div class="macts">
       <button class="btn2" onclick="closePag()">Cancelar</button>
@@ -1205,42 +1207,57 @@ function renderFinRecebidasTable(){
 }
 
 function renderFinFluxo(div){
+  const hoje = new Date();
+  const anoInicio = hoje.getFullYear() - 1;
+  const anoFim = hoje.getFullYear() + 1;
   div.innerHTML=`${finSubHeader('Fluxo de Caixa')}
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Período:</label>
+      <input class="finput" type="month" id="fluxo-de" value="${(anoInicio)+'-01'}" onchange="renderFluxoChart()" style="width:160px;" />
+      <span style="color:var(--muted);">até</span>
+      <input class="finput" type="month" id="fluxo-ate" value="${hoje.getFullYear()+'-12'}" onchange="renderFluxoChart()" style="width:160px;" />
+      <button class="btn2" onclick="document.getElementById('fluxo-de').value='${hoje.getFullYear()+'-01'}';document.getElementById('fluxo-ate').value='${hoje.getFullYear()+'-12'}';renderFluxoChart();" style="font-size:12px;padding:8px 14px;">Este ano</button>
+      <button class="btn2" onclick="document.getElementById('fluxo-de').value='${(anoInicio)+'-01'}';document.getElementById('fluxo-ate').value='${hoje.getFullYear()+'-12'}';renderFluxoChart();" style="font-size:12px;padding:8px 14px;">Últimos 2 anos</button>
+    </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;" id="fluxo-kpis"></div>
     <div class="dash-card" id="fluxo-chart"></div>`;
+  renderFluxoChart();
+}
 
+function renderFluxoChart(){
+  const deEl=document.getElementById('fluxo-de');
+  const ateEl=document.getElementById('fluxo-ate');
+  if(!deEl||!ateEl)return;
   const hoje=new Date();
   const anoAtual=hoje.getFullYear();
   const mesAtualNum=hoje.getMonth();
   const ativos=clients.filter(c=>c.status!=='cancelado');
+  const [anoDeStr,mesDeStr]=deEl.value.split('-');
+  const [anoAteStr,mesAteStr]=ateEl.value.split('-');
+  const anoDe=parseInt(anoDeStr),mesDe=parseInt(mesDeStr)-1;
+  const anoAte=parseInt(anoAteStr),mesAte=parseInt(mesAteStr)-1;
   const esperadoGsMensal=ativos.reduce((s,c)=>s+(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0)),0);
   const esperadoBrlMensal=ativos.reduce((s,c)=>s+(c.valor_brl||(c.moeda==='R$'?(c.valor||0):0)),0);
+  const mAtual2=hoje.toISOString().slice(0,7);
 
-  // Build all months: 3 past + current + future until December
+  // Build months based on filter range
   const meses=[];
-  // Past 3 months
-  for(let i=3;i>=1;i--){
-    const d=new Date(anoAtual,mesAtualNum-i,1);
-    const m=d.toISOString().slice(0,7);
-    const label=d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
-    const recGs=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,m);const gs=c.valor_gs||(c.moeda==='₲'?(c.valor||0):0);return s+(p&&p.status==='pago'?gs:0);},0);
-    const recBrl=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,m);const brl=c.valor_brl||(c.moeda==='R$'?(c.valor||0):0);return s+(p&&p.status==='pago'?brl:0);},0);
-    meses.push({m,label,esperadoGs:esperadoGsMensal,esperadoBrl:esperadoBrlMensal,recGs,recBrl,isFuture:false,isCurrent:false});
+  let cur=new Date(anoDe,mesDe,1);
+  const fim=new Date(anoAte,mesAte,1);
+  while(cur<=fim){
+    const m=cur.toISOString().slice(0,7);
+    const label=cur.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+    const isCurrent=m===hoje.toISOString().slice(0,7);
+    const isFuture=cur>hoje;
+    const recGs=isFuture?0:ativos.reduce((s,c)=>{const p=getPagCliente(c.id,m);const gs=c.valor_gs||(c.moeda==='₲'?(c.valor||0):0);return s+(p&&p.status==='pago'?gs:0);},0);
+    const recBrl=isFuture?0:ativos.reduce((s,c)=>{const p=getPagCliente(c.id,m);const brl=c.valor_brl||(c.moeda==='R$'?(c.valor||0):0);return s+(p&&p.status==='pago'?brl:0);},0);
+    meses.push({m,label,esperadoGs:esperadoGsMensal,esperadoBrl:esperadoBrlMensal,recGs,recBrl,isFuture,isCurrent});
+    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
   }
-  // Current month
   const mAtual=hoje.toISOString().slice(0,7);
-  const recGsAtual=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,mAtual);const gs=c.valor_gs||(c.moeda==='₲'?(c.valor||0):0);return s+(p&&p.status==='pago'?gs:0);},0);
-  const recBrlAtual=ativos.reduce((s,c)=>{const p=getPagCliente(c.id,mAtual);const brl=c.valor_brl||(c.moeda==='R$'?(c.valor||0):0);return s+(p&&p.status==='pago'?brl:0);},0);
-  meses.push({m:mAtual,label:hoje.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}),esperadoGs:esperadoGsMensal,esperadoBrl:esperadoBrlMensal,recGs:recGsAtual,recBrl:recBrlAtual,isFuture:false,isCurrent:true});
-  // Future months until December
-  for(let i=mesAtualNum+1;i<=11;i++){
-    const d=new Date(anoAtual,i,1);
-    const m=d.toISOString().slice(0,7);
-    const label=d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
-    meses.push({m,label,esperadoGs:esperadoGsMensal,esperadoBrl:esperadoBrlMensal,recGs:0,recBrl:0,isFuture:true,isCurrent:false});
-  }
+  const recGsAtual=meses.find(m=>m.isCurrent)?.recGs||0;
 
-  const taxa=esperadoGsMensal?((recGsAtual/esperadoGsMensal)*100).toFixed(0):0;
+  const taxa=esperadoGsMensal&&recGsAtual?((recGsAtual/esperadoGsMensal)*100).toFixed(0):0;
   const projecaoAnual=esperadoGsMensal*(12-mesAtualNum-1)+recGsAtual;
 
   document.getElementById('fluxo-kpis').innerHTML=`
@@ -2827,6 +2844,7 @@ function renderFinanceiro(){
 // ── REGISTRAR PAGAMENTO ──
 function openPag(clienteId, mes){
   pagClienteId = clienteId;
+  window._pagMes = mes;
   const c = clients.find(x=>x.id===clienteId);
   const pag = getPagCliente(clienteId, mes);
   pagExistingId = pag ? pag.id : null;
@@ -2839,13 +2857,16 @@ function openPag(clienteId, mes){
   document.getElementById('pag-data-pag').value = pag?.data_pagamento ? pag.data_pagamento.slice(0,10) : todayStr;
   document.getElementById('pag-forma').value = pag?.forma_pagamento || (c.contrato==='sem fatura'?'pix_br':'transferencia_py');
   document.getElementById('pag-obs').value = pag?.observacao || '';
+  document.getElementById('pag-mes-ref').value = mes;
+  document.getElementById('pag-desconto').value = pag?.desconto || 0;
   document.getElementById('pag-ov').classList.add('open');
 }
 
 function closePag(){ document.getElementById('pag-ov').classList.remove('open'); }
 
 async function savePagamento(){
-  const mes = finMes;
+  const mesInput = document.getElementById('pag-mes-ref');
+  const mes = (mesInput?.value) || window._pagMes || finMes || new Date().toISOString().slice(0,7);
   const data = {
     cliente_id: pagClienteId,
     mes_referencia: mes+'-01',
@@ -2863,7 +2884,7 @@ async function savePagamento(){
   } else {
     ({error} = await sb.from('pagamentos').insert(data));
   }
-  if(error){ showToast('Erro ao salvar pagamento', true); return; }
+  if(error){ console.error('Pagamento error:', error); showToast('Erro: '+( error.message||'verifique os dados'), true); return; }
   closePag();
   await loadPagamentos();
   renderFinanceiro();
