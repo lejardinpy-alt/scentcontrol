@@ -1421,7 +1421,8 @@ function applyFinRel(){
     totLabel = 'TOTAL A RECEBER';
   }
 
-  const totalGs = filtered.reduce((s,{c,pag})=>s+(tipo==='pagaram'?(pag?.valor_pago||(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0))):(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0))),0);
+  // Always use contracted value (valor_gs) for consistency across all views
+  const totalGs = filtered.reduce((s,{c})=>s+(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0)),0);
   const totalBrl = filtered.reduce((s,{c})=>s+(c.valor_brl||0),0);
 
   // Store for export
