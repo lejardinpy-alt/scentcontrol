@@ -885,6 +885,31 @@
   </div>
 </div>
 
+<!-- MODAL AGENDAMENTO -->
+<div class="overlay" id="ag-ov">
+  <div class="modal" style="width:460px;">
+    <div class="mttl">📅 Agendar Visita / Tarefa</div>
+    <div id="ag-cname" style="color:var(--muted);font-size:13px;margin-bottom:18px;"></div>
+    <div class="fgrid">
+      <div class="fgrp full">
+        <label class="flbl">Tipo</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button id="ag-tipo-visita" onclick="setAgTipo('visita')" style="flex:1;padding:10px;border-radius:8px;border:2px solid #6E784D;background:#6E784D;color:#fff;font-size:12px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;">🌿 Visita</button>
+          <button id="ag-tipo-manutencao" onclick="setAgTipo('manutencao')" style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:12px;font-family:'Outfit',sans-serif;cursor:pointer;">🔧 Manutenção</button>
+          <button id="ag-tipo-instalacao" onclick="setAgTipo('instalacao')" style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:12px;font-family:'Outfit',sans-serif;cursor:pointer;">⚙️ Instalação</button>
+          <button id="ag-tipo-outro" onclick="setAgTipo('outro')" style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:12px;font-family:'Outfit',sans-serif;cursor:pointer;">📋 Outro</button>
+        </div>
+      </div>
+      <div class="fgrp full"><label class="flbl">Data Agendada</label><input class="finput" id="ag-data" type="date" /></div>
+      <div class="fgrp full"><label class="flbl">Descrição / Instrução para o Repositor</label><input class="finput" id="ag-desc" placeholder="Ex: Trocar máquina, ajustar potência, instalar nova unidade..." /></div>
+    </div>
+    <div class="macts">
+      <button class="btn2" onclick="closeAgendamento()">Cancelar</button>
+      <button class="btn1" onclick="saveAgendamento()">Agendar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITAR VISITA -->
 <div class="overlay" id="edit-visit-ov">
   <div class="modal" style="width:440px">
@@ -919,7 +944,7 @@ const sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5amxicmRpdXNmb3lkYnRseWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjc4NjAsImV4cCI6MjA5MTg0Mzg2MH0.WZBiMfUHdh7duPZAZn-zM-zx2XFWyMPYKptcxAExnD0'
 );
 
-let role=null,currentUser=null,clients=[],visitas=[],selId=null,filter='all',ciId=null,editId=null;
+let role=null,currentUser=null,clients=[],visitas=[],pagamentos=[],agendamentos=[],selId=null,filter='all',ciId=null,editId=null;
 let gmap=null,markers=[],infoWindow=null;
 const MAQ_TYPES=['MAQ 2000 Branca','MAQ 1000','MAQ 300 Metal','MAQ 300 BT','MAQ Tomada'];
 
@@ -1645,6 +1670,16 @@ function renderDashboard(){
 
   // Alerts
   const alertas = [];
+  // Agendamentos para hoje e próximos 3 dias
+  const hoje3 = new Date(); hoje3.setDate(hoje3.getDate()+3);
+  agendamentos.filter(a=>{
+    if(a.status!=='pendente') return false;
+    const d = new Date(a.data_agendada);
+    return d <= hoje3;
+  }).forEach(a=>{
+    const c = clients.find(x=>x.id===a.cliente_id);
+    if(c) alertas.push({tipo:'accent',icon:'📅',msg:`<strong>${c.nome}</strong> — ${a.tipo} agendada p/ ${fmtDate(a.data_agendada)}`});
+  });
   clients.filter(c=>abastStatus(c.id)==='atrasado').forEach(c=>{
     alertas.push({tipo:'red',icon:'🔴',msg:`<strong>${c.nome}</strong> — abastecimento atrasado`});
   });
@@ -2324,12 +2359,13 @@ function doLogout(){
 document.getElementById('lp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
 async function loadData(){
-  const [cRes,vRes,pRes]=await Promise.all([
+  const [cRes,vRes,pRes,aRes]=await Promise.all([
     sb.from('clientes').select('*').order('nome'),
     sb.from('visitas').select('*').order('data',{ascending:false}),
-    sb.from('pagamentos').select('*').order('mes_referencia',{ascending:false})
+    sb.from('pagamentos').select('*').order('mes_referencia',{ascending:false}),
+    sb.from('agendamentos').select('*').order('data_agendada')
   ]);
-  clients=cRes.data||[];visitas=vRes.data||[];pagamentos=pRes.data||[];
+  clients=cRes.data||[];visitas=vRes.data||[];pagamentos=pRes.data||[];agendamentos=aRes.data||[];
   renderAll();
 }
 
@@ -2601,6 +2637,7 @@ function openDetail(c){
       <div class="drow"><span class="dk">Próximo previsto</span><span class="dv">${nextD?fmtDate(nextD):'—'}</span></div>
     </div>
     ${pendenciaAtiva?`<div class="dsec"><div class="dsec-ttl">⚠️ Pendência</div><div class="rota-pendencia" style="margin:0">${pendenciaAtiva}</div></div>`:''}
+    ${(()=>{const ags=agendamentos.filter(a=>a.cliente_id===c.id&&a.status==='pendente');return ags.length?`<div class="dsec"><div class="dsec-ttl">📅 Agendamentos Pendentes</div>${ags.map(a=>`<div class="rota-pendencia" style="margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;"><span>📅 ${fmtDate(a.data_agendada)} — ${a.descricao||a.tipo}</span>${isG?`<button onclick="cancelarAgendamento('${a.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">✕</button>`:''}</div>`).join('')}</div>`:'';})()}
     <div class="dsec"><div class="dsec-ttl">Histórico de Visitas</div>${histHTML}</div>
     <div style="height:12px"></div>
     <button class="checkin-btn" onclick="openCi('${c.id}')">✓ Registrar Visita Agora</button>
@@ -2758,6 +2795,18 @@ async function saveCi(){
     pendencia:document.getElementById('ci-pendencia').value||null
   });
   if(error){showToast('Erro ao registrar',true);return;}
+  // Check if there are pending agendamentos for this client - mark as executed
+  const agsCliente = agendamentos.filter(a=>a.cliente_id===ciId&&a.status==='pendente');
+  if(agsCliente.length>0){
+    // Mark all pending agendamentos as executed
+    for(const ag of agsCliente){
+      await sb.from('agendamentos').update({
+        status:'executado',
+        executado_em:ciDataFinal,
+        executado_por:currentUser.nome
+      }).eq('id',ag.id);
+    }
+  }
   closeCi();await loadData();if(gmap)renderMarkers();openDetail(clients.find(x=>x.id===ciId));
   showToast(isAbast?'✓ Abastecimento registrado!':'✓ Manutenção registrada!');
 }
@@ -2841,7 +2890,6 @@ async function savePwd(){
 }
 
 // ── FINANCEIRO ──
-let pagamentos = [];
 let finMes = null;
 let finFilter = 'todos';
 let pagClienteId = null;
@@ -3198,6 +3246,70 @@ async function deleteVisit(){
   showToast('✓ Visita excluída!');
 }
 
+// ── AGENDAMENTOS ──
+let agClienteId = null;
+let agTipo = 'visita';
+
+function openAgendamento(clienteId){
+  agClienteId = clienteId;
+  agTipo = 'visita';
+  const c = clients.find(x=>x.id===clienteId);
+  document.getElementById('ag-cname').textContent = c.nome;
+  // Set tomorrow as default date
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate()+1);
+  document.getElementById('ag-data').value = tomorrow.toISOString().slice(0,10);
+  document.getElementById('ag-desc').value = '';
+  setAgTipo('visita');
+  document.getElementById('ag-ov').classList.add('open');
+}
+
+function closeAgendamento(){ document.getElementById('ag-ov').classList.remove('open'); }
+
+function setAgTipo(tipo){
+  agTipo = tipo;
+  ['visita','manutencao','instalacao','outro'].forEach(t=>{
+    const btn = document.getElementById('ag-tipo-'+t);
+    if(!btn) return;
+    if(t===tipo){
+      btn.style.background='#6E784D';btn.style.borderColor='#6E784D';btn.style.color='#fff';
+    } else {
+      btn.style.background='var(--surface2)';btn.style.borderColor='var(--border2)';btn.style.color='var(--muted)';
+    }
+  });
+}
+
+async function saveAgendamento(){
+  if(!agClienteId) return;
+  const data = document.getElementById('ag-data').value;
+  const desc = document.getElementById('ag-desc').value.trim();
+  if(!data){ showToast('Selecione uma data', true); return; }
+  const {error} = await sb.from('agendamentos').insert({
+    cliente_id: agClienteId,
+    data_agendada: data,
+    tipo: agTipo,
+    descricao: desc || null,
+    status: 'pendente',
+    criado_por: currentUser.nome
+  });
+  if(error){ showToast('Erro ao agendar', true); return; }
+  closeAgendamento();
+  await loadData();
+  const c = clients.find(x=>x.id===agClienteId);
+  if(c) openDetail(c);
+  showToast('✓ Visita agendada!');
+}
+
+async function cancelarAgendamento(id){
+  if(!confirm('Cancelar este agendamento?')) return;
+  const {error} = await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id);
+  if(error){ showToast('Erro ao cancelar', true); return; }
+  await loadData();
+  const c = clients.find(x=>x.id===selId);
+  if(c) openDetail(c);
+  showToast('✓ Agendamento cancelado!');
+}
+
 function showToast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className=err?'toast err':'toast';t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
 
 // ── FRAGRANCE VOLUME CALCULATION ──
@@ -3350,10 +3462,11 @@ function renderRotaLista(){
     });
   });
 
-  const resumoHtml = ativos.length === 0
+  const resumoHtml = ativos.length === 0 && agsRegiao.length === 0
     ? '<span style="color:var(--muted)">Nenhum cliente para visitar nesta região hoje.</span>'
     : `<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
-        <span><strong>${ativos.length}</strong> cliente(s)</span>
+        <span><strong>${ativos.length}</strong> cliente(s) para abastecimento</span>
+        ${agsRegiao.length?`<span style="color:var(--accent)">📅 <strong>${agsRegiao.length}</strong> tarefa(s) agendada(s)</span>`:''}
         <span style="color:var(--muted)">|</span>
         ${Object.entries(totalVol).map(([frag,ml]) =>
           `<span>🌿 <strong>${frag.length>20?frag.slice(0,20)+'…':frag}:</strong> ${ml>=1000?(ml/1000).toFixed(2).replace(/\.?0+$/,'')+'L':ml+'ml'}</span>`
@@ -3378,6 +3491,7 @@ function renderRotaLista(){
     const freq = getFrequencia(c.id);
     const vol = calcVolume(c);
     const pendencia = getPendenciaCliente(c.id);
+    const agsPendentes = agendamentos.filter(a=>a.cliente_id===c.id&&a.status==='pendente');
 
     return `<div class="rota-card ${removed?'removido':''}" id="rota-card-${c.id}">
       <div class="rota-card-top">
@@ -3397,6 +3511,7 @@ function renderRotaLista(){
         ${c.endereco?`<span>📍 ${c.endereco}</span>`:''}
       </div>
       ${pendencia&&!removed?`<div class="rota-pendencia">⚠️ ${pendencia}</div>`:''}
+      ${agsPendentes.length&&!removed?agsPendentes.map(a=>`<div class="rota-pendencia" style="background:rgba(107,122,78,.08);border-color:rgba(107,122,78,.2);color:var(--accent);">📅 Agendado ${fmtDate(a.data_agendada)}: ${a.descricao||a.tipo}</div>`).join(''):''}
     </div>`;
   }).join('');
 }
