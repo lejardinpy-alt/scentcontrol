@@ -418,8 +418,8 @@
   </div>
 
   <!-- MODULE: LOGÍSTICA -->
-  <div id="module-logistica" class="module">
-    <div class="main" style="flex:1;overflow:hidden;height:100%;min-height:0;">
+  <div id="module-logistica" class="module" style="position:relative;">
+    <div class="main" style="position:absolute;inset:0;overflow:hidden;">
     <div class="sidebar">
       <div class="sb-head">
         <div class="sb-ttl">Visão Geral</div>
@@ -648,7 +648,7 @@
       <div class="fgrp"><label class="flbl">Mês referência</label><input class="finput" id="pag-mes-ref" type="month" /></div>
       <div class="fgrp"><label class="flbl">Valor cobrado</label><input class="finput" id="pag-valor" type="number" /></div>
       <div class="fgrp"><label class="flbl">Valor pago</label><input class="finput" id="pag-valor-pago" type="number" /></div>
-      <div class="fgrp"><label class="flbl">Desconto</label><input class="finput" id="pag-desconto" type="number" placeholder="0" /></div>
+      <div class="fgrp"><label class="flbl">Observação</label><input class="finput" id="pag-obs" placeholder="Desconto, parcelado, etc." /></div>
       <div class="fgrp"><label class="flbl">Data cobrança</label><input class="finput" id="pag-data-cob" type="date" /></div>
       <div class="fgrp"><label class="flbl">Data pagamento</label><input class="finput" id="pag-data-pag" type="date" /></div>
       <div class="fgrp"><label class="flbl">Observação</label><input class="finput" id="pag-obs" placeholder="Desconto, parcelado, etc." /></div>
@@ -2878,6 +2878,8 @@ async function savePagamento(){
     observacao: document.getElementById('pag-obs').value || null,
     status: document.getElementById('pag-status').value,
   };
+  // Remove undefined fields
+  Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
   let error;
   if(pagExistingId){
     ({error} = await sb.from('pagamentos').update(data).eq('id', pagExistingId));
