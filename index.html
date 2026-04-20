@@ -2642,6 +2642,7 @@ function openDetail(c){
     <div style="height:12px"></div>
     <button class="checkin-btn" onclick="openCi('${c.id}')">✓ Registrar Visita Agora</button>
     ${coord?`<a href="${mapsUrl}" target="_blank" style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12.5px;text-decoration:none;">🧭 Navegar até o cliente</a>`:''}
+    ${isG?`<button onclick="openAgendamento('${c.id}')" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12.5px;font-family:'DM Sans',sans-serif;cursor:pointer;" onmouseover="this.style.borderColor='var(--yellow)';this.style.color='var(--yellow)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">📅 Agendar Visita / Tarefa</button>`:''}
     <button id="pin-edit-btn-${c.id}" onclick="startPinEdit('${c.id}')" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:12.5px;font-family:'DM Sans',sans-serif;cursor:pointer;">📍 ${coord?'Corrigir localização no mapa':'Definir localização no mapa'}</button>
     <div style="height:20px"></div>`;
   document.getElementById('dpanel').classList.add('open');
