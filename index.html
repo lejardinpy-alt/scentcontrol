@@ -1418,7 +1418,8 @@ function getFinRelData(){
       const venc = new Date(a,mo-1,c.dia_vencimento||20,23,59,59);
       const contratoInicioFR = c.contrato_inicio ? new Date(c.contrato_inicio+'T12:00:00') : null;
       const mesRefFR = new Date(a,mo-1,1);
-      const beforeFR = contratoInicioFR && mesRefFR < new Date(contratoInicioFR.getFullYear(), contratoInicioFR.getMonth(), 1);
+      const contratoMesFR = contratoInicioFR ? new Date(contratoInicioFR.getFullYear(), contratoInicioFR.getMonth(), 1) : null;
+      const beforeFR = contratoMesFR && mesRefFR < contratoMesFR;
       const status = pag ? pag.status : (beforeFR ? 'pendente' : (hoje2>venc?'atrasado':'pendente'));
       rows.push({c, m, pag, status, venc});
     });
@@ -1854,7 +1855,11 @@ function renderFinanceiroInlineContent(){
             <td style="font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.nome}</td>
             <td style="color:var(--muted);font-size:11px;">${c.ruc||'—'}</td>
             <td style="text-align:center;">${totalMaq(c)}</td>
-            <td style="color:var(--muted);">dia ${c.dia_vencimento||'?'}</td>
+            <td style="color:var(--muted);font-size:11px;">${(()=>{
+              if(!c.dia_vencimento) return 'dia ?';
+              const [a4,m4]=mes.split('-').map(Number);
+              return new Date(a4,m4-1,c.dia_vencimento).toLocaleDateString('pt-BR');
+            })()}</td>
             <td style="text-align:right;font-weight:600;color:var(--green);">${c.valor_brl?'R$ '+Number(c.valor_brl).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
             <td style="text-align:right;font-weight:600;color:var(--accent);">${c.valor_gs?fmtGS(c.valor_gs):(c.moeda==='₲'?fmtValorFin(c):'—')}</td>
             <td><span class="pag-badge ${badgeClass[status]||'pag-pendente'}">${badgeLabel[status]||status}</span></td>
@@ -3072,7 +3077,11 @@ function renderFinanceiro(){
             <td style="font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.nome}</td>
             <td style="color:var(--muted);font-size:11px;">${c.ruc||'—'}</td>
             <td style="text-align:center;">${totalMaq(c)}</td>
-            <td style="color:var(--muted);">dia ${c.dia_vencimento||'?'}</td>
+            <td style="color:var(--muted);font-size:11px;">${(()=>{
+              if(!c.dia_vencimento) return 'dia ?';
+              const [a4,m4]=mes.split('-').map(Number);
+              return new Date(a4,m4-1,c.dia_vencimento).toLocaleDateString('pt-BR');
+            })()}</td>
             <td style="text-align:right;font-weight:600;color:#5A7A3A;">${c.valor_brl?'R$ '+Number(c.valor_brl).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—'}</td>
             <td style="text-align:right;font-weight:600;color:#6E784D;">${c.valor_gs?fmtGS(c.valor_gs):(c.moeda==='₲'?fmtValorFin(c):'—')}</td>
             <td><span class="pag-badge ${badgeClass[status]||'pag-pendente'}">${badgeLabel[status]||status}</span></td>
