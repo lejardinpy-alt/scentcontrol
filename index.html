@@ -492,6 +492,7 @@
         <select class="fsel" id="f-moeda"><option value="₲">₲ Guarani</option><option value="R$">R$ Real</option><option value="US$">US$ Dólar</option></select>
       </div>
       <div class="fgrp"><label class="flbl">Valor Mensal</label><input class="finput" id="f-valor" type="number" placeholder="0" /></div>
+      <div class="fgrp"><label class="flbl">Data 1º Vencimento</label><input class="finput" id="f-data-inicio" type="date" /></div>
       <div class="fgrp"><label class="flbl">Status do Cliente</label>
         <select class="fsel" id="f-status"><option value="ativo">Ativo</option><option value="teste">Em Teste</option><option value="cancelado">Cancelado</option></select>
       </div>
@@ -532,6 +533,7 @@
       <div class="fgrp"><label class="flbl">Contrato</label>
         <select class="fsel" id="e-contrato"><option value="ativo">Ativo</option><option value="pausado">Pausado</option><option value="sem fatura">Sem Fatura (Pix BR)</option></select>
       </div>
+      <div class="fgrp"><label class="flbl">Data 1º Vencimento</label><input class="finput" id="e-inicio" type="date" /></div>
       <div class="fgrp"><label class="flbl">Dia Vencimento (1-31)</label><input class="finput" id="e-venc" type="number" min="1" max="31" placeholder="Ex: 20" /></div>
       <div class="fgrp"><label class="flbl">Periodicidade (dias)</label>
         <select class="fsel" id="e-freq">
@@ -1414,7 +1416,10 @@ function getFinRelData(){
       const hoje2 = new Date();
       const [a,mo] = m.split('-').map(Number);
       const venc = new Date(a,mo-1,c.dia_vencimento||20,23,59,59);
-      const status = pag ? pag.status : (hoje2>venc?'atrasado':'pendente');
+      const contratoInicioFR = c.contrato_inicio ? new Date(c.contrato_inicio+'T12:00:00') : null;
+      const mesRefFR = new Date(a,mo-1,1);
+      const beforeFR = contratoInicioFR && mesRefFR < new Date(contratoInicioFR.getFullYear(), contratoInicioFR.getMonth(), 1);
+      const status = pag ? pag.status : (beforeFR ? 'pendente' : (hoje2>venc?'atrasado':'pendente'));
       rows.push({c, m, pag, status, venc});
     });
   });
@@ -2665,7 +2670,9 @@ function getMaqRows(builderId){return Array.from(document.querySelectorAll(`#${b
 
 async function saveClient(){
   const nome=document.getElementById('f-nome').value.trim();if(!nome){alert('Nome obrigatório');return;}
-  const {error}=await sb.from('clientes').insert({nome,ruc:document.getElementById('f-ruc').value||null,responsavel:document.getElementById('f-resp').value||null,telefone:document.getElementById('f-tel').value||null,endereco:document.getElementById('f-end').value||null,fragancia:document.getElementById('f-frag').value||null,maquinas:getMaqRows('maq-builder'),moeda:document.getElementById('f-moeda').value,valor:parseFloat(document.getElementById('f-valor').value)||0,status:document.getElementById('f-status').value,contrato:document.getElementById('f-contrato').value,observacoes:document.getElementById('f-obs').value||null,pos_x:20+Math.random()*60,pos_y:20+Math.random()*60});
+  const {error}=await sb.from('clientes').insert({nome,ruc:document.getElementById('f-ruc').value||null,responsavel:document.getElementById('f-resp').value||null,telefone:document.getElementById('f-tel').value||null,endereco:document.getElementById('f-end').value||null,fragancia:document.getElementById('f-frag').value||null,maquinas:getMaqRows('maq-builder'),moeda:document.getElementById('f-moeda').value,valor:parseFloat(document.getElementById('f-valor').value)||0,status:document.getElementById('f-status').value,contrato:document.getElementById('f-contrato').value,observacoes:document.getElementById('f-obs').value||null,pos_x:20+Math.random()*60,pos_y:20+Math.random()*60,
+    dia_vencimento:(()=>{const d=document.getElementById('f-data-inicio').value;return d?new Date(d+'T12:00:00').getDate():20;})(),
+    contrato_inicio:document.getElementById('f-data-inicio').value||null});
   if(error){showToast('Erro ao salvar',true);return;}
   closeModal();await loadData();if(gmap)renderMarkers();showToast('✓ Cliente cadastrado!');
   ['f-nome','f-ruc','f-resp','f-tel','f-end','f-frag','f-valor','f-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
@@ -2691,6 +2698,7 @@ function openEditModal(){
   document.getElementById('e-venc').value=c.dia_vencimento||'';
   document.getElementById('e-desconto').value=c.desconto||0;
   document.getElementById('e-freq').value=c.frequencia||15;
+  if(document.getElementById('e-inicio')) document.getElementById('e-inicio').value=c.contrato_inicio||'';
   // Popular máquinas
   const builder=document.getElementById('edit-maq-builder');
   builder.innerHTML='';
@@ -2723,6 +2731,7 @@ async function saveEdit(){
     contrato:document.getElementById('e-contrato').value,
     observacoes:document.getElementById('e-obs').value||null,
     dia_vencimento:parseInt(document.getElementById('e-venc').value)||null,
+    contrato_inicio:document.getElementById('e-inicio')?.value||null,
     desconto:parseFloat(document.getElementById('e-desconto').value)||0,
     frequencia:parseInt(document.getElementById('e-freq').value)||15,
   };
@@ -3451,6 +3460,13 @@ function getPendenciaCliente(cid){
 function renderRotaLista(){
   const lista = getClientesParaRota(rotaRegiao);
   const ativos = lista.filter(c => !rotaRemovedIds.has(c.id));
+
+  // Agendamentos for this region
+  const agsRegiao = agendamentos.filter(a=>{
+    if(a.status!=='pendente') return false;
+    const c = clients.find(x=>x.id===a.cliente_id);
+    return c && (c.regiao||'cde')===rotaRegiao;
+  });
 
   // Summary
   const totalVol = {};
