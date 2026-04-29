@@ -1151,8 +1151,14 @@ function renderFinReceberTable(){
     const pag=getPagCliente(c.id,mes);
     const hoje=new Date();
     const [a2,m2]=mes.split('-').map(Number);
-    const venc=new Date(a2,m2-1,c.dia_vencimento||20,23,59,59);
-    const status=pag?pag.status:(hoje>venc?'atrasado':'pendente');
+    const diaVenc=c.dia_vencimento||20;
+    const venc=new Date(a2,m2-1,diaVenc,23,59,59);
+    // Check if contract has started yet
+    const cInicio = c.contrato_inicio ? new Date(c.contrato_inicio+'T12:00:00') : null;
+    const cMes = cInicio ? new Date(cInicio.getFullYear(), cInicio.getMonth(), 1) : null;
+    const mesRef = new Date(a2,m2-1,1);
+    const notStarted = cMes && mesRef < cMes;
+    const status=pag?pag.status:(notStarted?'pendente':(hoje>venc?'atrasado':'pendente'));
     return{c,pag,status};
   });
   if(f!=='todos')filtered=filtered.filter(x=>x.status===f);
@@ -1169,7 +1175,7 @@ function renderFinReceberTable(){
       <td style="font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.nome}</td>
       <td style="text-align:center;color:var(--muted);font-size:11px;">${fmtVencimento(c,mes)}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;">${c.valor_brl?'R$ '+Number(c.valor_brl).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;">${c.valor_gs?fmtGS(c.valor_gs):(c.moeda==='₲'?fmtValorFin(c):'—')}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;">${status==='pago'&&pag?.valor_pago?fmtGS(pag.valor_pago):(c.valor_gs?fmtGS(c.valor_gs):(c.moeda==='₲'?fmtValorFin(c):'—'))}</td>
       <td><span class="pag-badge ${badgeClass[status]}">${badgeLabel[status]}</span></td>
       <td style="font-size:11px;color:var(--muted);">${pag?.data_pagamento?fmtDate(pag.data_pagamento):'—'}</td>
       <td style="font-size:11px;color:var(--muted);">${pag?.forma_pagamento?formaLabel[pag.forma_pagamento]||pag.forma_pagamento:'—'}</td>
@@ -1178,7 +1184,10 @@ function renderFinReceberTable(){
     <tfoot><tr style="background:var(--surface2);">
       <td colspan="2" style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">${footLabel}</td>
       <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${footColor};">${filtered.reduce((s,{c})=>s+(c.valor_brl||0),0)>0?'R$ '+filtered.reduce((s,{c})=>s+(c.valor_brl||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
-      <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${footColor};">${fmtGS(filtered.reduce((s,{c})=>s+(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0)),0))}</td>
+      <td style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${footColor};">${fmtGS(filtered.reduce((s,{c,pag,status})=>{
+        const base = c.valor_gs||(c.moeda==='₲'?(c.valor||0):0);
+        return s+(status==='pago'?(pag?.valor_pago||base):base);
+      },0))}</td>
       <td colspan="4" style="padding:10px 12px;font-size:11px;color:var(--muted);">${filtered.length} cliente(s)</td>
     </tr></tfoot>
     </tbody></table>`;
@@ -1211,7 +1220,7 @@ function renderFinRecebidasTable(){
   if(q)filtered=filtered.filter(x=>x.c.nome.toLowerCase().includes(q));
   const el=document.getElementById('recebidas-table');
   if(!el)return;
-  const totalGs=filtered.reduce((s,{c,pag})=>s+(pag.valor_pago||(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0))),0);
+  const totalGs=filtered.reduce((s,{c,pag})=>s+(pag?.valor_pago||(c.valor_gs||(c.moeda==='₲'?(c.valor||0):0))),0);
   const totalBrl=filtered.reduce((s,{c,pag})=>s+(c.valor_brl||0),0);
   el.innerHTML=`<table class="fin-table">
     <thead><tr><th>Cliente</th><th>Data Pag.</th><th style="text-align:right;">R$</th><th style="text-align:right;">₲ Pago</th><th>Forma</th><th>Obs.</th><th></th></tr></thead>
@@ -1812,8 +1821,16 @@ function renderFinanceiroInlineContent(){
     const diaVenc=c.dia_vencimento||20;
     const [ano2,mes3]=mes.split('-').map(Number);
     const vencimento=new Date(ano2,mes3-1,diaVenc,23,59,59);
-    const status=pag?pag.status:(hoje>vencimento?'atrasado':'pendente');
-    if(status==='pago'){totalRecebidoGS+=gs;totalRecebidoBRL2+=brl;pagos++;}
+    const cInicioI = c.contrato_inicio ? new Date(c.contrato_inicio+'T12:00:00') : null;
+    const cMesI = cInicioI ? new Date(cInicioI.getFullYear(), cInicioI.getMonth(), 1) : null;
+    const mesRefI = new Date(ano2,mes3-1,1);
+    const notStartedI = cMesI && mesRefI < cMesI;
+    const status=pag?pag.status:(notStartedI?'pendente':(hoje>vencimento?'atrasado':'pendente'));
+    if(status==='pago'){
+      // Use valor_pago if available, otherwise use contracted value
+      const gsRec = pag?.valor_pago || gs;
+      totalRecebidoGS+=gsRec;totalRecebidoBRL2+=brl;pagos++;
+    }
     else if(status==='atrasado'){totalAtrasado+=gs;atrasados++;}
     else{totalPendente+=gs;pendentes++;}
   });
