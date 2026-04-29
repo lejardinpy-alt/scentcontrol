@@ -282,6 +282,10 @@
   .kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
   .fin-table{width:100%;border-collapse:collapse;font-size:12px;}
   .fin-table th{text-align:left;padding:10px 12px;font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid var(--border);white-space:nowrap;font-family:'Outfit',sans-serif;background:var(--surface2);}
+  .fin-table th.sortable{cursor:pointer;user-select:none;}
+  .fin-table th.sortable:hover{color:var(--accent);background:var(--accent-light);}
+  .fin-table th.sort-asc::after{content:' ↑';color:var(--accent);}
+  .fin-table th.sort-desc::after{content:' ↓';color:var(--accent);}
   .fin-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px;}
   .fin-table tr:hover td{background:var(--surface2);}
   .pag-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap;}
@@ -1163,7 +1167,12 @@ function renderFinReceberTable(){
   });
   if(f!=='todos')filtered=filtered.filter(x=>x.status===f);
   if(q)filtered=filtered.filter(x=>x.c.nome.toLowerCase().includes(q));
-  filtered.sort((a,b)=>{const o={atrasado:0,pendente:1,pago:2,isento:3};return(o[a.status]||2)-(o[b.status]||2);});
+  // Apply default sort (atrasado first) then custom sort if set
+  if(!_sortCol){
+    filtered.sort((a,b)=>{const o={atrasado:0,pendente:1,pago:2,isento:3};return(o[a.status]||2)-(o[b.status]||2);});
+  } else {
+    filtered = applySortToRows(filtered);
+  }
   const el=document.getElementById('receber-table');
   if(!el)return;
   // Footer totals depend on filter
@@ -1861,7 +1870,12 @@ function renderFinanceiroInlineContent(){
 
   if(finFilterInline!=='todos') filtered=filtered.filter(x=>x.status===finFilterInline);
   if(finSearch) filtered=filtered.filter(x=>x.c.nome.toLowerCase().includes(finSearch)||(x.c.ruc||'').includes(finSearch));
-  filtered.sort((a,b)=>{const o={atrasado:0,pendente:1,pago:2,isento:3};return(o[a.status]||2)-(o[b.status]||2);});
+  // Apply default sort (atrasado first) then custom sort if set
+  if(!_sortCol){
+    filtered.sort((a,b)=>{const o={atrasado:0,pendente:1,pago:2,isento:3};return(o[a.status]||2)-(o[b.status]||2);});
+  } else {
+    filtered = applySortToRows(filtered);
+  }
 
   document.getElementById('fin-tabela-inline').innerHTML=`
     <table class="fin-table">
@@ -3343,6 +3357,54 @@ async function cancelarAgendamento(id){
   const c = clients.find(x=>x.id===selId);
   if(c) openDetail(c);
   showToast('✓ Agendamento cancelado!');
+}
+
+// ── TABLE SORTING ──
+let _sortCol = null;
+let _sortDir = 'asc';
+
+function sortTable(col){
+  if(_sortCol === col){
+    _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    _sortCol = col;
+    _sortDir = 'asc';
+  }
+  // Update header classes
+  document.querySelectorAll('.fin-table th.sortable').forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+    if(th.dataset.col === col){
+      th.classList.add(_sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+  });
+  renderFinReceberTable();
+}
+
+function applySortToRows(rows){
+  if(!_sortCol) return rows;
+  return [...rows].sort((a,b)=>{
+    let va, vb;
+    const {c:ca, pag:pa, status:sa} = a;
+    const {c:cb, pag:pb, status:sb} = b;
+    switch(_sortCol){
+      case 'nome': va=ca.nome||''; vb=cb.nome||''; break;
+      case 'venc':
+        va=ca.dia_vencimento||0; vb=cb.dia_vencimento||0; break;
+      case 'brl': va=ca.valor_brl||0; vb=cb.valor_brl||0; break;
+      case 'gs': va=ca.valor_gs||(ca.moeda==='₲'?(ca.valor||0):0); vb=cb.valor_gs||(cb.moeda==='₲'?(cb.valor||0):0); break;
+      case 'status':
+        const o={atrasado:0,pendente:1,pago:2,isento:3};
+        va=o[sa]||2; vb=o[sb]||2; break;
+      case 'data_pag':
+        va=pa?.data_pagamento?new Date(pa.data_pagamento).getTime():0;
+        vb=pb?.data_pagamento?new Date(pb.data_pagamento).getTime():0; break;
+      case 'forma': va=pa?.forma_pagamento||''; vb=pb?.forma_pagamento||''; break;
+      default: return 0;
+    }
+    if(va < vb) return _sortDir==='asc'?-1:1;
+    if(va > vb) return _sortDir==='asc'?1:-1;
+    return 0;
+  });
 }
 
 function showToast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className=err?'toast err':'toast';t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
