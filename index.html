@@ -343,6 +343,7 @@
       </button>
       <div class="nav-sub" id="navsub-financeiro">
         <button class="nav-item" onclick="showFinSub('dashboard')" id="nav-fin-dashboard">📊 Dashboard</button>
+        <button class="nav-item" onclick="showFinSub('caixa')" id="nav-fin-caixa">💵 Caixa</button>
         <button class="nav-item" onclick="showFinSub('receber')" id="nav-fin-receber">📥 Contas a Receber</button>
         <button class="nav-item" onclick="showFinSub('fluxo')" id="nav-fin-fluxo">📈 Fluxo de Caixa</button>
         <button class="nav-item" onclick="showFinSub('relatorios')" id="nav-fin-relatorios">📋 Relatórios</button>
@@ -651,6 +652,13 @@
           <option value="outro">Outro</option>
         </select>
       </div>
+      <div class="fgrp"><label class="flbl">Moeda do pagamento</label>
+        <select class="fsel" id="pag-moeda">
+          <option value="gs">₲ Guarani</option>
+          <option value="brl">R$ Real</option>
+          <option value="usd">US$ Dólar</option>
+        </select>
+      </div>
       <div class="fgrp"><label class="flbl">Mês referência</label><input class="finput" id="pag-mes-ref" type="month" /></div>
       <div class="fgrp"><label class="flbl">Valor cobrado</label><input class="finput" id="pag-valor" type="number" /></div>
       <div class="fgrp"><label class="flbl">Valor pago</label><input class="finput" id="pag-valor-pago" type="number" /></div>
@@ -916,6 +924,66 @@
   </div>
 </div>
 
+<!-- MODAL LANÇAMENTO MANUAL CAIXA -->
+<div class="overlay" id="caixa-manual-ov">
+  <div class="modal" style="width:440px;">
+    <div class="mttl">💵 Lançamento Manual</div>
+    <div class="fgrid">
+      <div class="fgrp"><label class="flbl">Tipo</label>
+        <select class="fsel" id="cm-tipo">
+          <option value="entrada">↑ Entrada</option>
+          <option value="saida">↓ Saída</option>
+        </select>
+      </div>
+      <div class="fgrp"><label class="flbl">Moeda</label>
+        <select class="fsel" id="cm-moeda">
+          <option value="gs">₲ Guarani</option>
+          <option value="brl">R$ Real</option>
+          <option value="usd">US$ Dólar</option>
+        </select>
+      </div>
+      <div class="fgrp"><label class="flbl">Valor</label><input class="finput" id="cm-valor" type="number" placeholder="0" /></div>
+      <div class="fgrp"><label class="flbl">Data</label><input class="finput" id="cm-data" type="date" /></div>
+      <div class="fgrp full"><label class="flbl">Descrição</label><input class="finput" id="cm-desc" placeholder="Ex: Pagamento fornecedor, despesa, etc." /></div>
+    </div>
+    <div class="macts">
+      <button class="btn2" onclick="closeCaixaManual()">Cancelar</button>
+      <button class="btn1" onclick="saveCaixaManual()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TRANSFERÊNCIA ENTRE CAIXAS -->
+<div class="overlay" id="caixa-transf-ov">
+  <div class="modal" style="width:480px;">
+    <div class="mttl">↔ Transferência entre Caixas</div>
+    <div class="fgrid">
+      <div class="fgrp"><label class="flbl">Moeda Origem</label>
+        <select class="fsel" id="ct-moeda-origem">
+          <option value="usd">US$ Dólar</option>
+          <option value="brl">R$ Real</option>
+          <option value="gs">₲ Guarani</option>
+        </select>
+      </div>
+      <div class="fgrp"><label class="flbl">Moeda Destino</label>
+        <select class="fsel" id="ct-moeda-destino">
+          <option value="gs">₲ Guarani</option>
+          <option value="brl">R$ Real</option>
+          <option value="usd">US$ Dólar</option>
+        </select>
+      </div>
+      <div class="fgrp"><label class="flbl">Valor Origem</label><input class="finput" id="ct-valor-origem" type="number" placeholder="Ex: 500" /></div>
+      <div class="fgrp"><label class="flbl">Valor Destino</label><input class="finput" id="ct-valor-destino" type="number" placeholder="Ex: 2.950.000" /></div>
+      <div class="fgrp full"><label class="flbl">Taxa de câmbio (opcional)</label><input class="finput" id="ct-taxa" type="number" placeholder="Ex: 5900" /></div>
+      <div class="fgrp full"><label class="flbl">Descrição</label><input class="finput" id="ct-desc" placeholder="Ex: Conversão dólar para guarani" /></div>
+    </div>
+    <div class="macts">
+      <button class="btn2" onclick="closeCaixaTransferencia()">Cancelar</button>
+      <button class="btn1" onclick="saveCaixaTransferencia()">Registrar Transferência</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITAR VISITA -->
 <div class="overlay" id="edit-visit-ov">
   <div class="modal" style="width:440px">
@@ -950,7 +1018,7 @@ const sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5amxicmRpdXNmb3lkYnRseWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjc4NjAsImV4cCI6MjA5MTg0Mzg2MH0.WZBiMfUHdh7duPZAZn-zM-zx2XFWyMPYKptcxAExnD0'
 );
 
-let role=null,currentUser=null,clients=[],visitas=[],pagamentos=[],agendamentos=[],selId=null,filter='all',ciId=null,editId=null;
+let role=null,currentUser=null,clients=[],visitas=[],pagamentos=[],agendamentos=[],caixaMovs=[],selId=null,filter='all',ciId=null,editId=null;
 let gmap=null,markers=[],infoWindow=null;
 const MAQ_TYPES=['MAQ 2000 Branca','MAQ 1000','MAQ 300 Metal','MAQ 300 BT','MAQ Tomada'];
 
@@ -1041,6 +1109,7 @@ function renderFinSub(sub){
   const div = document.getElementById('fin-inline-content');
   if(!div) return;
   if(sub==='dashboard') renderFinDashboard(div);
+  else if(sub==='caixa') renderFinCaixa(div);
   else if(sub==='receber') renderFinReceber(div);
   else if(sub==='recebidas') renderFinRecebidas(div);
   else if(sub==='fluxo') renderFinFluxo(div);
@@ -1249,6 +1318,209 @@ function renderFinRecebidasTable(){
       <td colspan="3" style="padding:10px 12px;font-size:11px;color:var(--muted);">${filtered.length} cliente(s)</td>
     </tr></tfoot>
     </tbody></table>`;
+}
+
+function renderFinCaixa(div){
+  const hoje = new Date();
+  const mesAtual = hoje.toISOString().slice(0,7);
+
+  div.innerHTML=`${finSubHeader('💵 Caixa')}
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+      <div class="fgrp">
+        <label class="flbl">De</label>
+        <input class="finput" type="date" id="caixa-de" style="width:150px;" />
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Até</label>
+        <input class="finput" type="date" id="caixa-ate" style="width:150px;" />
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Moeda</label>
+        <select class="fsel" id="caixa-moeda-filter" style="width:130px;" onchange="renderCaixaContent()">
+          <option value="todas">Todas</option>
+          <option value="gs">₲ Guarani</option>
+          <option value="brl">R$ Real</option>
+          <option value="usd">US$ Dólar</option>
+        </select>
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Tipo</label>
+        <select class="fsel" id="caixa-tipo-filter" style="width:130px;" onchange="renderCaixaContent()">
+          <option value="todos">Todos</option>
+          <option value="entrada">Entradas</option>
+          <option value="saida">Saídas</option>
+          <option value="transferencia">Transferências</option>
+        </select>
+      </div>
+      <button class="btn1" onclick="renderCaixaContent()" style="padding:9px 16px;font-size:12px;">Filtrar</button>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn2" onclick="openCaixaManual()" style="font-size:12px;padding:8px 14px;">+ Lançamento Manual</button>
+        <button class="btn2" onclick="openCaixaTransferencia()" style="font-size:12px;padding:8px 14px;">↔ Transferência</button>
+      </div>
+    </div>
+    <div id="caixa-saldos" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;"></div>
+    <div id="caixa-content"></div>`;
+
+  // Default: last 30 days
+  const de = new Date(hoje); de.setDate(de.getDate()-30);
+  document.getElementById('caixa-de').value = de.toISOString().slice(0,10);
+  document.getElementById('caixa-ate').value = hoje.toISOString().slice(0,10);
+  renderCaixaContent();
+}
+
+function fmtCaixaValor(valor, moeda){
+  if(moeda==='gs') return fmtGS(valor);
+  if(moeda==='brl') return 'R$ '+Number(valor).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  if(moeda==='usd') return 'US$ '+Number(valor).toLocaleString('en-US',{minimumFractionDigits:2});
+  return valor;
+}
+
+function renderCaixaContent(){
+  const deEl = document.getElementById('caixa-de');
+  const ateEl = document.getElementById('caixa-ate');
+  const moedaFilter = document.getElementById('caixa-moeda-filter')?.value || 'todas';
+  const tipoFilter = document.getElementById('caixa-tipo-filter')?.value || 'todos';
+  if(!deEl||!ateEl) return;
+
+  const de = new Date(deEl.value+'T00:00:00');
+  const ate = new Date(ateEl.value+'T23:59:59');
+
+  // Calculate running balances (all time)
+  const saldos = {gs:0, brl:0, usd:0};
+  [...caixaMovs].reverse().forEach(m=>{
+    if(m.tipo==='entrada') saldos[m.moeda] = (saldos[m.moeda]||0) + (m.valor||0);
+    else if(m.tipo==='saida') saldos[m.moeda] = (saldos[m.moeda]||0) - (m.valor||0);
+    else if(m.tipo==='transferencia'){
+      saldos[m.moeda] = (saldos[m.moeda]||0) - (m.valor||0);
+      if(m.moeda_destino) saldos[m.moeda_destino] = (saldos[m.moeda_destino]||0) + (m.valor_destino||0);
+    }
+  });
+
+  // KPI saldos
+  document.getElementById('caixa-saldos').innerHTML = `
+    <div class="kpi-card" style="border-left:3px solid var(--accent);">
+      <div class="kpi-val" style="color:var(--accent)">${fmtGS(saldos.gs||0)}</div>
+      <div class="kpi-lbl" style="margin-top:6px;">Saldo ₲ Guarani</div>
+    </div>
+    <div class="kpi-card" style="border-left:3px solid var(--green);">
+      <div class="kpi-val" style="color:var(--green)">R$ ${(saldos.brl||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+      <div class="kpi-lbl" style="margin-top:6px;">Saldo R$ Real</div>
+    </div>
+    <div class="kpi-card" style="border-left:3px solid var(--blue);">
+      <div class="kpi-val" style="color:var(--blue)">US$ ${(saldos.usd||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+      <div class="kpi-lbl" style="margin-top:6px;">Saldo US$ Dólar</div>
+    </div>`;
+
+  // Filter movements
+  let filtered = caixaMovs.filter(m=>{
+    const d = new Date(m.criado_em);
+    if(d < de || d > ate) return false;
+    if(moedaFilter!=='todas' && m.moeda!==moedaFilter) return false;
+    if(tipoFilter!=='todos' && m.tipo!==tipoFilter) return false;
+    return true;
+  });
+
+  const tipoLabel = {entrada:'↑ Entrada', saida:'↓ Saída', transferencia:'↔ Transf.'};
+  const tipoColor = {entrada:'color:var(--green)', saida:'color:var(--red)', transferencia:'color:var(--blue)'};
+
+  document.getElementById('caixa-content').innerHTML = filtered.length ? `
+    <table class="fin-table">
+      <thead><tr>
+        <th>Data</th><th>Tipo</th><th>Moeda</th>
+        <th style="text-align:right;">Valor</th>
+        <th>Descrição</th><th>Responsável</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${filtered.map(m=>`<tr>
+          <td style="font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap;">${fmtDate(m.criado_em)}</td>
+          <td><span style="font-size:11px;font-weight:600;${tipoColor[m.tipo]||''}">${tipoLabel[m.tipo]||m.tipo}</span></td>
+          <td style="font-size:11px;">${m.moeda==='gs'?'₲':m.moeda==='brl'?'R$':'US$'}</td>
+          <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;${tipoColor[m.tipo]||''};">
+            ${m.tipo==='saida'?'-':''}${fmtCaixaValor(m.valor,m.moeda)}
+            ${m.tipo==='transferencia'&&m.moeda_destino?`<div style="font-size:10px;color:var(--muted);">→ ${fmtCaixaValor(m.valor_destino,m.moeda_destino)}</div>`:''}
+          </td>
+          <td style="font-size:12px;">${m.descricao||'—'}</td>
+          <td style="font-size:11px;color:var(--muted);">👤 ${m.criado_por||'—'}</td>
+          <td><button onclick="deleteCaixaMov('${m.id}')" class="pag-btn go" style="color:var(--red);border-color:var(--red);">✕</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>` : '<div style="color:var(--muted);font-size:13px;padding:20px 0;">Nenhum movimento no período selecionado.</div>';
+}
+
+async function deleteCaixaMov(id){
+  if(!confirm('Excluir este lançamento?')) return;
+  const {error} = await sb.from('caixa').delete().eq('id',id);
+  if(error){ showToast('Erro ao excluir',true); return; }
+  await loadData();
+  renderFinSub('caixa');
+  showToast('✓ Lançamento excluído!');
+}
+
+function openCaixaManual(){
+  document.getElementById('caixa-manual-ov').classList.add('open');
+  document.getElementById('cm-valor').value='';
+  document.getElementById('cm-desc').value='';
+  document.getElementById('cm-tipo').value='entrada';
+  document.getElementById('cm-moeda').value='gs';
+  document.getElementById('cm-data').value=new Date().toISOString().slice(0,10);
+}
+function closeCaixaManual(){ document.getElementById('caixa-manual-ov').classList.remove('open'); }
+
+async function saveCaixaManual(){
+  const tipo = document.getElementById('cm-tipo').value;
+  const moeda = document.getElementById('cm-moeda').value;
+  const valor = parseFloat(document.getElementById('cm-valor').value)||0;
+  const desc = document.getElementById('cm-desc').value.trim();
+  const data = document.getElementById('cm-data').value;
+  if(!valor){ showToast('Informe o valor',true); return; }
+  const {error} = await sb.from('caixa').insert({
+    tipo, moeda, valor,
+    descricao: desc||null,
+    referencia_tipo: 'manual',
+    criado_por: currentUser.nome,
+    criado_em: data ? new Date(data+'T12:00:00').toISOString() : new Date().toISOString()
+  });
+  if(error){ showToast('Erro ao salvar',true); return; }
+  closeCaixaManual();
+  await loadData();
+  renderFinSub('caixa');
+  showToast('✓ Lançamento registrado!');
+}
+
+function openCaixaTransferencia(){
+  document.getElementById('caixa-transf-ov').classList.add('open');
+  document.getElementById('ct-valor-origem').value='';
+  document.getElementById('ct-valor-destino').value='';
+  document.getElementById('ct-taxa').value='';
+  document.getElementById('ct-desc').value='';
+}
+function closeCaixaTransferencia(){ document.getElementById('caixa-transf-ov').classList.remove('open'); }
+
+async function saveCaixaTransferencia(){
+  const moedaOrigem = document.getElementById('ct-moeda-origem').value;
+  const moedaDestino = document.getElementById('ct-moeda-destino').value;
+  const valorOrigem = parseFloat(document.getElementById('ct-valor-origem').value)||0;
+  const valorDestino = parseFloat(document.getElementById('ct-valor-destino').value)||0;
+  const taxa = parseFloat(document.getElementById('ct-taxa').value)||0;
+  const desc = document.getElementById('ct-desc').value.trim();
+  if(!valorOrigem||!valorDestino){ showToast('Informe os valores',true); return; }
+  if(moedaOrigem===moedaDestino){ showToast('Selecione moedas diferentes',true); return; }
+  const {error} = await sb.from('caixa').insert({
+    tipo: 'transferencia',
+    moeda: moedaOrigem,
+    valor: valorOrigem,
+    moeda_destino: moedaDestino,
+    valor_destino: valorDestino,
+    taxa_cambio: taxa||null,
+    descricao: desc||`Transferência ${moedaOrigem.toUpperCase()} → ${moedaDestino.toUpperCase()}`,
+    referencia_tipo: 'transferencia',
+    criado_por: currentUser.nome
+  });
+  if(error){ showToast('Erro ao salvar',true); return; }
+  closeCaixaTransferencia();
+  await loadData();
+  renderFinSub('caixa');
+  showToast('✓ Transferência registrada!');
 }
 
 function renderFinFluxo(div){
@@ -1502,7 +1774,7 @@ function applyFinRel(){
           <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;">${c.valor_brl?'R$ '+Number(c.valor_brl).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
           <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;">${c.valor_gs?fmtGS(c.valor_gs):(c.moeda==='₲'?fmtValorFin(c):'—')}</td>
           <td><span class="pag-badge ${badgeClass[status]||'pag-pendente'}">${status==='pago'?'✅ Pago':status==='atrasado'?'⚠️ Atrasado':status==='isento'?'🎁 Isento':'⏳ Pendente'}</span></td>
-          <td style="font-size:11px;">${pag?.forma_pagamento?formaLabel[pag.forma_pagamento]||pag.forma_pagamento:'—'}</td>
+          <td style="font-size:11px;">${pag?.forma_pagamento?formaLabel[pag.forma_pagamento]||pag.forma_pagamento:'—'}${pag?.moeda_pagamento&&pag.moeda_pagamento!=='gs'?` <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--accent-light);color:var(--accent);">${pag.moeda_pagamento==='brl'?'R$':'US$'}</span>`:''}</td>
         </tr>`).join('')}
       </tbody>
       <tfoot><tr style="background:var(--surface2);">
@@ -2396,13 +2668,14 @@ function doLogout(){
 document.getElementById('lp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
 async function loadData(){
-  const [cRes,vRes,pRes,aRes]=await Promise.all([
+  const [cRes,vRes,pRes,aRes,cxRes]=await Promise.all([
     sb.from('clientes').select('*').order('nome'),
     sb.from('visitas').select('*').order('data',{ascending:false}),
     sb.from('pagamentos').select('*').order('mes_referencia',{ascending:false}),
-    sb.from('agendamentos').select('*').order('data_agendada')
+    sb.from('agendamentos').select('*').order('data_agendada'),
+    sb.from('caixa').select('*').order('criado_em',{ascending:false})
   ]);
-  clients=cRes.data||[];visitas=vRes.data||[];pagamentos=pRes.data||[];agendamentos=aRes.data||[];
+  clients=cRes.data||[];visitas=vRes.data||[];pagamentos=pRes.data||[];agendamentos=aRes.data||[];caixaMovs=cxRes.data||[];
   renderAll();
 }
 
@@ -3184,6 +3457,10 @@ function openPag(clienteId, mes){
   document.getElementById('pag-data-cob').value = pag?.data_cobranca ? pag.data_cobranca.slice(0,10) : todayStr;
   document.getElementById('pag-data-pag').value = pag?.data_pagamento ? pag.data_pagamento.slice(0,10) : todayStr;
   document.getElementById('pag-forma').value = pag?.forma_pagamento || (c.contrato==='sem fatura'?'pix_br':'transferencia_py');
+  // Set default moeda based on client's main currency
+  const moedaMap = {'₲':'gs','R$':'brl','US$':'usd'};
+  const defaultMoeda = pag?.moeda_pagamento || moedaMap[c.moeda] || 'gs';
+  document.getElementById('pag-moeda').value = defaultMoeda;
   document.getElementById('pag-obs').value = pag?.observacao || '';
   const mesRefEl = document.getElementById('pag-mes-ref');
   if(mesRefEl) mesRefEl.value = mes;
@@ -3203,6 +3480,7 @@ async function savePagamento(){
     data_cobranca: document.getElementById('pag-data-cob').value || null,
     data_pagamento: document.getElementById('pag-data-pag').value || null,
     forma_pagamento: document.getElementById('pag-forma').value,
+    moeda_pagamento: document.getElementById('pag-moeda').value,
     observacao: document.getElementById('pag-obs').value || null,
     status: document.getElementById('pag-status').value,
   };
@@ -3215,9 +3493,28 @@ async function savePagamento(){
     ({error} = await sb.from('pagamentos').insert(data));
   }
   if(error){ console.error('Pagamento error:', error); showToast('Erro: '+( error.message||'verifique os dados'), true); return; }
+  
+  // Auto-register in caixa if status is pago
+  if(data.status === 'pago'){
+    const moedaPag = document.getElementById('pag-moeda')?.value || 'gs';
+    const valorCaixa = moedaPag === 'brl' ? (data.valor_pago||data.valor) : 
+                       moedaPag === 'usd' ? (data.valor_pago||data.valor) :
+                       (data.valor_pago||data.valor);
+    const c = clients.find(x=>x.id===pagClienteId);
+    await sb.from('caixa').insert({
+      tipo: 'entrada',
+      moeda: moedaPag,
+      valor: valorCaixa,
+      descricao: `Pagamento - ${c?.nome||'Cliente'} (${mes})`,
+      referencia_id: pagExistingId || null,
+      referencia_tipo: 'pagamento',
+      criado_por: currentUser.nome
+    });
+  }
+  
   closePag();
-  await loadPagamentos();
-  renderFinanceiro();
+  await loadData();
+  renderFinSub(currentFinSub||'receber');
   showToast('✓ Pagamento registrado!');
 }
 
